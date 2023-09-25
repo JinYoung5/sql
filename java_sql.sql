@@ -612,7 +612,7 @@ SELECT e.ename,e.job,e.deptno,d.dname FROM emp e, dept d WHERE e.deptno=d.deptno
 SELECT d.loc, COUNT(e.empno) emp_member FROM emp e, dept d WHERE e.deptno(+)=d.deptno GROUP BY d.loc;
 
 6)사원의 이름 및 사원번호를 관리자의 이름과 관리자 번호와 함께 표시하고 각각의 열 레이블은 emplyee,emp#,manager,mgr#로 지정하시오.(관리자 없는 사원 미출력)
-SELECT e.ename, e.empno FROM
+SELECT e.ename, e.empno FROM emp e
 7)관리자보다 먼저 입사한 모든사원의 이름 및 입사일을 관리자의 이름 및 입사일과 함께 표시하고 열 레이블을 각각 employee,emp hired, manager, mgr hired로 지정하시오.
 
 8)지정한 부서번호,사원이름 및 지정한 사원과 동일한 부서에서 근무하는 모든 사월을 표시하도록 질의를 작성하고 부서번호는 department,사원이름은 emplyee, 동일한 부서에서 근무하는 사원은 colleague

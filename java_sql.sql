@@ -583,7 +583,7 @@ SELECT e.ename,e.sal,s.grade FROM emp e, salgrade s WHERE e.sal BETWEEN s.losal 
 사원 이름과 해당 사원의 관리자 이름 구하기(관리자가 없는 사원 제외)
 SELECT e.ename 사원이름, m.ename 관리자이름 FROM emp e, emp m WHERE e.mgr=m.empno;
 
-외부조인 (Outer Join)
+외부 조인 (Outer Join)
 조인할 때 조인에 참가한 테이블의 두 개 컬럼에서 공통된 값이 없다면 테이블로부터 데이터를 반환하지 않음.
 누락되는 행을 보여지게 하려면 외부 조인 사용
 (주의)외부 조인을 표시할 때 누락된 행의 반대 테이블에 + 기호 표시
@@ -609,11 +609,14 @@ SELECT e.ename,e.job,e.deptno,d.dname FROM emp e, dept d WHERE d.loc='CHICAGO';
 SELECT e.ename,e.job,e.deptno,d.dname FROM emp e, dept d WHERE e.deptno=d.deptno AND d.loc = 'CHICAGO';
 
 5)근무지(loc)별로 근무하는 사원의 수가 5명 이하인 경우, 인원이 적은 도시 순으로 정렬하시오.(근무인원이 0명)
-SELECT d.loc, COUNT(e.empno) emp_member FROM emp e, dept d WHERE e.deptno(+)=d.deptno GROUP BY d.loc;
+SELECT d.loc, COUNT(e.empno) emp_member FROM emp e, dept d WHERE e.deptno(+)=d.deptno GROUP BY d.loc HAVING COUNT(e.empno)<=5 ORDER BY emp_member;
 
-6)사원의 이름 및 사원번호를 관리자의 이름과 관리자 번호와 함께 표시하고 각각의 열 레이블은 emplyee,emp#,manager,mgr#로 지정하시오.(관리자 없는 사원 미출력)
-SELECT e.ename, e.empno FROM emp e
-7)관리자보다 먼저 입사한 모든사원의 이름 및 입사일을 관리자의 이름 및 입사일과 함께 표시하고 열 레이블을 각각 employee,emp hired, manager, mgr hired로 지정하시오.
+6)사원의 이름 및 사원번호를 관리자의 이름과 관리자 번호와 함께 표시하고 각각의 열 레이블은 employee,emp#,manager,mgr#로 지정하시오.(관리자 없는 사원 미출력)
+SELECT e.ename employee, e.empno "emp#", m.ename manager, m.empno"mgr#" FROM emp e,emp m WHERE e.mgr = m.empno;
+
+7)관리자보다 먼저 입사한 모든사원의 이름 및 입사일을 관리자의 이름 및 입사일과 함께 표시하고 열 레이블을 각각 employee,emp hired, manager, mgr hired로 지정하시오.(관리자 없는 사원 미출력)
+SELECT e.ename "employee", e.hiredate "emp hired", m.ename manager, m.hiredate"mgr hired" FROM emp e, emp m WHERE e.mgr=m.empno AND e.hiredate < m.hiredate;
 
 8)지정한 부서번호,사원이름 및 지정한 사원과 동일한 부서에서 근무하는 모든 사월을 표시하도록 질의를 작성하고 부서번호는 department,사원이름은 emplyee, 동일한 부서에서 근무하는 사원은 colleague
   로 표시하시오.(부서번호,사원이름,동료 순으로 오름차순 정렬)
+SELECT e.deptno department, e.ename employee, c.ename colleague FROM emp e, emp c WHERE e.deptno = c.deptno AND e.empno <> c.empno ORDER BY e.deptno,e.ename,c.ename;

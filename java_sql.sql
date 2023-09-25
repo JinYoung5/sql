@@ -620,3 +620,6 @@ SELECT e.ename "employee", e.hiredate "emp hired", m.ename manager, m.hiredate"m
 8)지정한 부서번호,사원이름 및 지정한 사원과 동일한 부서에서 근무하는 모든 사월을 표시하도록 질의를 작성하고 부서번호는 department,사원이름은 emplyee, 동일한 부서에서 근무하는 사원은 colleague
   로 표시하시오.(부서번호,사원이름,동료 순으로 오름차순 정렬)
 SELECT e.deptno department, e.ename employee, c.ename colleague FROM emp e, emp c WHERE e.deptno = c.deptno AND e.empno <> c.empno ORDER BY e.deptno,e.ename,c.ename;
+
+9)커미션이 책정된 사원들의 사원번호,사원이름,부서명,연봉,급여+커미션,급여등급을 출력하는데 각각의 컬럼명을 "사원번호","사원이름","부서명","연봉","실급여","급여등급"으로 출력하시오.
+SELECT e.empno 사원번호,e.ename 사원이름,d.dname 부서명,e.sal*12 연봉, e.sal+NVL(e.comm,0) 실급여, s.grade 급여등급 FROM emp e, dept d, salgrade s WHERE e.deptno=d.deptno AND e.sal BETWEEN s.losal AND s.hisal ORDER BY s.grade DESC;

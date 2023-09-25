@@ -617,5 +617,3 @@ SELECT d.loc, COUNT(e.empno) emp_member FROM emp e, dept d WHERE e.deptno(+)=d.d
 
 8)지정한 부서번호,사원이름 및 지정한 사원과 동일한 부서에서 근무하는 모든 사월을 표시하도록 질의를 작성하고 부서번호는 department,사원이름은 emplyee, 동일한 부서에서 근무하는 사원은 colleague
   로 표시하시오.(부서번호,사원이름,동료 순으로 오름차순 정렬)
-  
-sql 저장완료

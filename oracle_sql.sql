@@ -751,8 +751,16 @@ SELECT * FROM dept d, (SELECT deptno, COUNT(empno) cnt FROM emp GROUP BY deptno)
 SELECT d.dname,NVL(b.cnt,0) FROM dept d, (SELECT deptno, COUNT(empno) cnt FROM emp GROUP BY deptno)b WHERE d.deptno=b.deptno(+);
 
 7)CHICAGO 지역에서 근무하는 사원의 평균 급여보다 높은 급여를 받는 사원의 이름과 급여,지역명을 출력하시오
+SELECT e.ename,e.sal,d.loc FROM emp e, dept d WHERE e.deptno=d.deptno AND e.sal>(SELECT AVG(e.sal) FROM emp e, dept d WHERE e.deptno=d.deptno AND d.loc='CHICAGO');
+SELECT e.ename,e.sal,d.loc FROM emp e, dept d WHERE e.deptno=d.deptno AND e.sal>(SELECT AVG(sal) FROM emp WHERE deptno IN(SELECT deptno FROM dept WHERE loc='CHICAGO'));
 
 8)ALLEN보다 급여를 많이 받는 사람 중에서 입사일이 가장 빠른 사원과 동일한 날짜에 입사한 사원의 이름과 입사일,급여를 출력하시오.
+SELECT ename,hiredate,sal FROM emp WHERE hiredate=(SELECT MIN(hiredate) FROM emp WHERE sal > ALL(SELECT sal FROM emp WHERE ename='ALLEN'));
 
-
-
+9)총급여(sal+comm)가 평균 급여보다 많은 급여를 받는 사람의 부서번호,이름,총급여,커미션을 출력하시오.(커미션 유(O),무(X)로 표시하고 컬럼명은 "comm유무"로 출력)
+SELECT deptno,ename,sal+NVL(comm,0) AS 총급여,
+        CASE WHEN comm IS NOT NULL THEN 'O'
+             ELSE 'X'
+        END AS comm유무
+FROM emp
+WHERE sal+NVL(comm,0)>(SELECT AVG(sal) FROM emp);

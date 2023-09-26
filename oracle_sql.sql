@@ -764,3 +764,5 @@ SELECT deptno,ename,sal+NVL(comm,0) AS ÃÑ±Þ¿©,
         END AS commÀ¯¹«
 FROM emp
 WHERE sal+NVL(comm,0)>(SELECT AVG(sal) FROM emp);
+
+SELECT deptno,ename,sal+NVL(comm,0) AS ÃÑ±Þ¿©, NVL2(comm,'O','X') commÀ¯¹« FROM emp WHERE sal+NVL(comm,0)>(SELECT AVG(sal) FROM emp);

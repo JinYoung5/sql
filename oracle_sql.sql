@@ -796,3 +796,26 @@ DELETE FROM emp;
 ROLLBACK;
 
 SELECT * FROM emp;
+
+테이블
+
+오라클 데이터베이스의 테이블
+-사용자 테이블
+-데이터 딕셔너리
+사용자가 소유한 테이블의 이름
+SELECT table_name FROM user_tables;
+
+사용자가 소유한 개별 객체 유형
+SELECT object_type FROM user_objects;
+
+사용자가 소유한 테이블,뷰,동의어 및 시퀀스
+SELECT * FROM user_catalog;
+
+테이블의 생성
+테이블의 이름 : 만들어질 테이블 이름.
+열의 이름 : 테이블 내에 만들어질 열의 이름.
+데이터 타입 : 각각의 열은 자신의 데이터 타입을 가짐.
+default<표현식> : 각각의 열에는 insert 구문에 열의 값이 지정되지 않은 경우에 이용될 디폴트 값을 지정
+제약조건 : 만들어질 각 열에 선택적으로 제약조건을 정의
+
+CREATE TABLE employee(empno number(6),name varchar2(30) NOT NULL, salary number(8,2), hire_date date default sysdate, constraint employee_pk primary key (empno));

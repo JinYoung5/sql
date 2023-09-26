@@ -663,7 +663,7 @@ SELECT e.ename,deptno,d.dname FROM emp e JOIN dept d USING(deptno); --USING절
 2)업무가 SALESMAN인 사원의 정보를 이름,업무,부서명,근무지 순으로 출력하시오.
 SELECT e.ename,e.job,d.dname,d.loc FROM emp e JOIN dept d ON e.deptno=d.deptno WHERE e.job='SALESMAN';
 
-3)커미션을 받고 급여가 2,000이상인 사원의 사원이름, 급여, 부서명, 근무지를 출력하시오.
+3)커미션을 받고 급여가 800이상인 사원의 사원이름, 급여, 부서명, 근무지를 출력하시오.
 SELECT e.ename,e.sal,d.dname,d.loc FROM emp e JOIN dept d ON e.deptno=d.deptno WHERE e.comm IS NOT NULL AND e.sal>=800;
 
 4)근무지(loc)별로 근무하는 사원의 수가 5명 이하인 경우, 인원이 적은 도시 순으로 정렬하시오.(근무 인원이 0명인 곳도 표시)
@@ -819,3 +819,23 @@ default<표현식> : 각각의 열에는 insert 구문에 열의 값이 지정되지 않은 경우에 이�
 제약조건 : 만들어질 각 열에 선택적으로 제약조건을 정의
 
 CREATE TABLE employee(empno number(6),name varchar2(30) NOT NULL, salary number(8,2), hire_date date default sysdate, constraint employee_pk primary key (empno));
+
+-- rename employee to Employee; rename: 변경
+
+1)업무가 CLERK인 사원의 이름,월급,부서명,급여등급을 출력하시오.
+
+2)근무지(loc)별로 근무하는 사원의 수가 5명 이하일 때, 인원이 같은 도시를 출력하시오.
+
+3)근무지(loc)별로 근무하는 사원의 수를 출력하고, 사원의 수가 제일 많은 도시의 사원들의 이름,월급을 출력하시오.
+
+4)직업이 MANAGER인 사원들의 부서번호,부서이름,사원이름,월급,급여등급을 출력하시오.
+
+5)직업이 MANAGER인 사원 중 급여를 가장 적게 받는 사원과 동일한 급여를 받는 사원의 이름,부서명,부서번호를 출력하시오.
+
+6)'BLAKE'와 같은 직업의 사원들의 이름과 월급을 출력하는데, 월급이 2500이상인 사원만 출력하시오.
+
+7)근무지가 DALLAS 인 사원 모두의 사원번호와 이름을 출력하시오.
+
+8)평균급여보다 많은 급여를 받는 사원중 DALLAS지역에서 근무하는 사원의 이름과 급여를 출력하시오.
+
+9)모든사원의 직업, 부서이름을 출력하시오 (emp,dept)

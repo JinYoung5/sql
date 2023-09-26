@@ -672,3 +672,73 @@ SELECT d.loc,COUNT(e.empno) emp_member FROM emp e RIGHT OUTER JOIN dept d ON e.d
 5) 10번 부서에서 근무하는 사원들의 부서번호,부서이름,사원이름,월급,급여등급을 출력하시오. -- 2개를 먼저 연결한 후 나머지 하나를 연결.
 SELECT e.deptno,d.dname,e.ename,e.sal,s.grade FROM emp e INNER JOIN dept d ON e.deptno = d.deptno INNER JOIN salgrade s ON e.sal BETWEEN s.losal AND s.hisal WHERE e.deptno=10;
 
+집합연산자
+-union (합집합 중복값 제거)
+union은 두 테이블의 결합을 나타나며, 결합시키는 두 테이블의  중복되지 않은 값들을 반환
+SELECT deptno FROM emp UNION SELECT deptno FROM dept;
+
+-union all
+union과 같으나 두 테이블의 중복되는 값까지 반환
+SELECT deptno FROM emp UNION ALL SELECT deptno FROM dept;
+
+SELECT ename, deptno FROM emp UNION SELECT dname, deptno FROM dept;
+
+-intersect
+intersect는 두 행의 집합 중 공통된 행을 반환
+SELECT deptno FROM emp INTERSECT SELECT deptno FROM dept;
+-minus
+minus는 첫번째 select문에 의해 반환되는 행 중에서 두 번째 select문에 의해 반환되는 행에 존재하지 않는 행들을 보여줌
+SELECT deptno FROM dept MINUS SELECT deptno FROM emp;
+
+서브쿼리
+다른 하나의 SQL문장의 절에 nested된 select문장
+
+-단일행 서브쿼리 : 오직 한 개의 행(값)을 반환
+SELECT job FROM emp WHERE empno=7369; --subquerty
+SELECT empno,ename,job FROM emp WHERE job = 'CLERK'; --'clerk' 메인쿼리
+SELECT empno,ename,job FROM emp WHERE job =(SELECT job FROM emp WHERE empno=7369);
+
+SELECT empno,ename,sal FROM emp WHERE sal=(SELECT sal FROM emp WHERE empno=7654);
+
+-다중행 서브쿼리
+하나 이상의 행을 반환하는 서브쿼리
+
+IN 연산자의 사용
+부서별로 가장 급여를 적게 받는 사원과 동일한 급여를 받는 사원의 정보를 출력
+SELECT empno,ename,sal,deptno FROM emp WHERE sal IN(SELECT MIN(sal) FROM emp GROUP BY deptno);
+
+ANY 연산자의 이용
+ANY 연산자는 서브쿼리의 결과값 중 어느 하나의 값이라도 만족이 되면 결과값을 반환
+SELECT sal FROM emp WHERE job = 'SALESMAN';
+SELECT ename,sal FROM emp WHERE sal>1250 OR sal>1500 OR sal>1600;
+----->서브쿼리로 표시
+SELECT ename,sal FROM emp WHERE sal>ANY(SELECT sal FROM emp WHERE job='SALESMAN');
+
+ALL 연산자의 사용
+서브쿼리의 결과와 모든 값이 일치
+SELECT sal FROM emp WHERE deptno=20;
+SELECT empno,ename,sal,deptno FROM emp WHERE sal>800 AND sal>2975 AND sal>3000;
+----->서브쿼리로 표시
+SELECT empno,ename,sal,deptno FROM emp WHERE sal>ALL(SELECT sal FROM emp WHERE deptno=20);
+
+-다중열 서브쿼리
+SELECT empno,ename,sal,deptno FROM emp WHERE (deptno,sal) IN (select deptno,sal FROM emp WHERE deptno=30);
+
+부서별로 가장 급여를 적게 받는 사원의 정보를 출력
+SELECT empno,ename,sal,deptno FROM emp WHERE (deptno,sal) IN (select deptno,MIN(sal) FROM emp GROUP BY deptno);
+
+[실습문제]
+1)'BLAKE'와 같은 부서에 있는 사원들의 이름과 입사일을 구하는데 ' BLAKE'는 제외하고 출력하시오.
+SELECT ename,hiredate FROM emp WHERE deptno IN (SELECT deptno FROM emp WHERE ename='BLAKE') AND ename!='BLAKE';
+
+2)평균급여보다 많은 급여를 받는 사원들의 사원번호,이름,월급을 출력하는데 월급이 높은 사람순으로 출력하시오.
+SELECT empno,ename,sal FROM emp WHERE sal>(SELECT AVG(sal) FROM emp) ORDER BY sal DESC;
+
+3)10번부서에서 급여를 가장 적게 받는 사원과 동일한 급여를 받는 사원의 이름과 월급을 출력하시오.
+SELECT ename,sal FROM emp WHERE sal=(SELECT MIN(sal) FROM emp WHERE deptno=10); --단일문: 동일한 급여
+
+4)사원번호가 7844인 사원보다 빨리 입사한 사원의 이름과 입사일을 출력하시오. --단일행
+SELECT ename,hiredate FROM emp WHERE hiredate < (SELECT hiredate FROM emp WHERE empno=7844);
+
+5)관리자(mgr)가 KING인 모든 사원의 이름과 급여를 출력하시오.
+SELECT ename,sal FROM emp WHERE mgr IN(SELECT empno FROM emp WHERE ename='KING');

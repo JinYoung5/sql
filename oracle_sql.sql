@@ -766,3 +766,33 @@ FROM emp
 WHERE sal+NVL(comm,0)>(SELECT AVG(sal) FROM emp);
 
 SELECT deptno,ename,sal+NVL(comm,0) AS 총급여, NVL2(comm,'O','X') comm유무 FROM emp WHERE sal+NVL(comm,0)>(SELECT AVG(sal) FROM emp);
+
+INSERT문 : 테이블에 행을 삽입
+전체 데이터 삽입(전체 컬럼 명시)
+INSERT INTO emp (empno,ename,job,mgr,hiredate,sal,comm,deptno) VALUES (8000,'DENNIS','SALESMAN',7698,'99/01/22',1700,200,30);
+
+전체 데이터 삽입(전체 데이터를 삽입할 경우)
+INSERT INTO emp VALUES(8001,'SUNNY','SALESMAN',7698,'99/03/01',1000,300,30);
+
+특정 컬럼을 제외하고  데이터 삽입
+INSERT INTO emp (empno,ename,job,mgr,hiredate,sal,deptno) VALUES (8002,'PETER','CLERK',7698,'99/05/02',1700,10);
+
+값이 입력되지 않는 컬럼을 제외하지 않았을 경우
+INSERT INTO emp (empno,ename,job,mgr,hiredate,sal,comm,deptno) VALUES (8003,'ANNIE','CLERK',7698,'99/06/26',1800,NULL,20);
+
+UPDATE문 : 행단위로 데이터 갱신
+UPDATE emp SET mgr = 7900 WHERE empno=8000;
+UPDATE emp SET ename = 'MARIA',sal=2500,comm=500 WHERE empno=8001;
+
+WHERE절을 명시하지 않으면 전체 행의 정보를 갱신
+UPDATE emp SET ename='JOHN',sal=6000;
+
+DELETE문 : 행을 삭제
+DELETE FROM emp WHERE empno=7900;
+
+WHERE절을 명시하지 않으면 모든 행이 삭제됨
+DELETE FROM emp;
+
+ROLLBACK;
+
+SELECT * FROM emp;

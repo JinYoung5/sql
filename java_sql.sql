@@ -623,3 +623,52 @@ SELECT e.deptno department, e.ename employee, c.ename colleague FROM emp e, emp 
 
 9)커미션이 책정된 사원들의 사원번호,사원이름,부서명,연봉,급여+커미션,급여등급을 출력하는데 각각의 컬럼명을 "사원번호","사원이름","부서명","연봉","실급여","급여등급"으로 출력하시오.
 SELECT e.empno 사원번호,e.ename 사원이름,d.dname 부서명,e.sal*12 연봉, e.sal+NVL(e.comm,0) 실급여, s.grade 급여등급 FROM emp e, dept d, salgrade s WHERE e.deptno=d.deptno AND e.sal BETWEEN s.losal AND s.hisal ORDER BY s.grade DESC;
+
+[표준 SQL]
+-내부조인(Inner Join)
+SELECT emp.ename,dept.deptno FROM emp INNER JOIN dept ON emp.deptno = dept.deptno; --INNER는 생략가능
+
+SELECT e.ename,d.dname FROM emp e JOIN dept d ON e.deptno = d.deptno;
+
+부가적인 조건이 있으면 WHERE 절 사용
+
+SELECT e.ename,d.dname FROM emp e JOIN dept d ON e.deptno = d.deptno WHERE e.ename = 'ALLEN';
+
+만약 JOIN 조건에 사용된 컬럼의 이름이 같다면 다음과 같이 USING 절을 사용하여 조인 조건을 정의할 수 있음
+SELECT e.ename,d.dname FROM emp e JOIN dept d USING(deptno) WHERE e.ename='ALLEN';
+
+(주의) USING 에 사용된 컬럼은 테이블명 또는 테이블 알리아스를 붙이지 않음
+SELECT e.ename,d.dname,d.deptno FROM emp e JOIN dept d USING(deptno); --틀린문장
+SELECT e.ename,d.dname,deptno FROM emp e JOIN dept d USING(deptno);
+
+JOIN할때 하나의 테이블에만 존재하는 컬럼은 테이블명 또는 테이블 알리아스를 붙이지 않아도 식별 가능
+SELECT ename,sal,dname FROM emp JOIN dept USING(deptno);
+
+-SELF JOIN
+사원 이름과 해당 사원의 관리자 이름 구하기(관리자가 없는 사원은 제외)
+SELECT e.ename name, m.ename manager_name FROM emp e JOIN emp m ON e.mgr = m.empno;
+
+-외부조인(Outer Join)
+SELECT DISTINCT(e.deptno), d.deptno FROM emp e JOIN dept d on e.deptno = d.deptno;
+SELECT DISTINCT(e.deptno), d.deptno FROM emp e RIGHT OUTER JOIN dept d on e.deptno = d.deptno; --RIGHT OUTER 오른쪽에있는 정보가 누락됨을 표시
+
+사원이름과 해당 사원의 관리자 이름 구하기(관리자가 없는 사원도 표시)
+SELECT e.ename name, m.ename manager_name FROM emp e LEFT OUTER JOIN emp m ON e.mgr = m.empno;
+
+[실습문제]
+1) 모든 사원의 이름, 부서번호, 부서이름을 표시하시오.(emp,dept)
+SELECT e.ename, e.deptno, d.dname FROM emp e INNER JOIN dept d ON e.deptno=d.deptno; --ON 절
+SELECT e.ename,deptno,d.dname FROM emp e JOIN dept d USING(deptno); --USING절
+
+2)업무가 SALESMAN인 사원의 정보를 이름,업무,부서명,근무지 순으로 출력하시오.
+SELECT e.ename,e.job,d.dname,d.loc FROM emp e JOIN dept d ON e.deptno=d.deptno WHERE e.job='SALESMAN';
+
+3)커미션을 받고 급여가 2,000이상인 사원의 사원이름, 급여, 부서명, 근무지를 출력하시오.
+SELECT e.ename,e.sal,d.dname,d.loc FROM emp e JOIN dept d ON e.deptno=d.deptno WHERE e.comm IS NOT NULL AND e.sal>=800;
+
+4)근무지(loc)별로 근무하는 사원의 수가 5명 이하인 경우, 인원이 적은 도시 순으로 정렬하시오.(근무 인원이 0명인 곳도 표시)
+SELECT d.loc,COUNT(e.empno) emp_member FROM emp e RIGHT OUTER JOIN dept d ON e.deptno=d.deptno GROUP BY d.loc HAVING COUNT(e.empno)<=5 ORDER BY emp_member;
+
+5) 10번 부서에서 근무하는 사원들의 부서번호,부서이름,사원이름,월급,급여등급을 출력하시오. -- 2개를 먼저 연결한 후 나머지 하나를 연결.
+SELECT e.deptno,d.dname,e.ename,e.sal,s.grade FROM emp e INNER JOIN dept d ON e.deptno = d.deptno INNER JOIN salgrade s ON e.sal BETWEEN s.losal AND s.hisal WHERE e.deptno=10;
+

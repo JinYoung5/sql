@@ -821,6 +821,7 @@ default<표현식> : 각각의 열에는 insert 구문에 열의 값이 지정되지 않은 경우에 이�
 CREATE TABLE employee(empno number(6),name varchar2(30) NOT NULL, salary number(8,2), hire_date date default sysdate, constraint employee_pk primary key (empno));
 
 -- rename employee to Employee; rename: 변경
+
 --6,4,3,2 번 안됨
 1)뉴욕에서 일하는 사원중 업무가 CLERK인 사원의 이름,월급,부서명,급여등급을 출력하시오.
 SELECT e.ename,e.sal,d.dname,s.grade FROM emp e,dept d,salgrade s WHERE e.sal BETWEEN s.losal AND s.hisal AND e.job='CLERK' AND d.loc='NEW YORK';
@@ -832,20 +833,19 @@ SELECT d.loc,COUNT(e.empno) emp_m FROM emp e RIGHT OUTER JOIN dept d ON e.deptno
 
 3)근무지(loc)별로 근무하는 사원의 수를 emp_m으로 출력하고, 사원의 수가 제일 많은 도시의 사원들의 이름,월급을 출력하시오.
 SELECT d.loc, COUNT(e.empno) emp_m, e.ename,e.sal FROM emp e RIGHT OUTER JOIN dept d ON e.deptno=d.deptno GROUP BY d.loc HAVING MAX(e.empno) ORDER BY emp_m;
---사원의 수가 제일 많은 도시?
+--사원의 수가 제일 많은 도시?..
 
 SELECT e.ename,e.job,d.dname,d.loc FROM emp e JOIN dept d ON e.deptno=d.deptno WHERE e.job='SALESMAN';
 4)직업이 MANAGER인 사원들의 부서번호,부서이름,사원이름,월급,급여등급을 출력하시오.
 SELECT e.deptno,d.dname,e.ename,e.sal,s.grade FROM emp e INNER JOIN dept d ON e.deptno=d.deptno INNER JOIN salgrade s ON e.job='MANAGER';
---
+--많은 정보가 출력됨..
 
 5)직업이 MANAGER인 사원 중 급여를 가장 적게 받는 사원과 동일한 급여를 받는 사원의 이름,부서명,부서번호를 출력하시오.
 SELECT e.ename,d.dname,e.deptno FROM emp e, dept d WHERE e.deptno=d.deptno AND e.sal=(SELECT MIN(e.sal) FROM emp e, dept d WHERE e.deptno=d.deptno AND e.job='MANAGER');
 
-SELECT empno,ename,sal,deptno FROM emp WHERE sal IN(SELECT MIN(sal) FROM emp GROUP BY deptno);
 6)'BLAKE'의 직업과 같은 직업인 사원들의 이름과 월급을 출력하는데, 월급이 2500이상인 사원만 출력하시오.
 SELECT ename,sal FROM emp WHERE sal IN(SELECT sal>=2500 FROM emp WHERE job;
---
+--BLAKE의 직업과 같은 직업 출력?..
 
 7)근무지가 DALLAS 인 사원 모두의 사원번호와 이름을 출력하시오.
 SELECT e.deptno, e.ename FROM emp e, dept d WHERE d.loc IN(SELECT d.loc FROM dept WHERE d.loc='DALLAS');
@@ -1064,3 +1064,19 @@ CREATE UNIQUE INDEX dname_idx ON dept (dname);
 create index index_name ON table_name (column_name)
 
 CREATE INDEX emp_ename_idx ON emp (ename);
+
+
+동의어(객체의 다른 이름)를 생성하여 객체 액세스를 단순화함
+다른사용자가 소유한 테이블을 쉽게 참조
+-긴 객체 이름을 짧게 만든다.
+
+
+동의어 생성
+create synonym emp20
+for emp20_view;
+
+SELECT * FROM emp20_view;
+SELECT * FROM emp20;
+
+동의어 삭제
+drop synonym emp20;

@@ -1024,3 +1024,25 @@ SELECT * FROM emp20_view;
 View 삭제
 drop view emp10_view;
 
+시퀀스
+유일한 값을 생성해주는 오라클 객체
+시퀀스를 생성하면 기본키와 같이 순차적으로 증가하는 컬럼을 자동적으로 생성할 수 있음.
+보통 primary key 값을 생성하기 위해 사용
+
+시퀀스 생성
+create sequence test_seq
+start with 1
+increment by 1
+maxvalue 100000;
+
+currval : 현재 값을 반환
+nextval : 현재 시퀀스 값의 다음 값 반환
+
+SELECT test_seq.nextval FROM dual;
+SELECT test_seq.currval FROM dual;
+
+INSERT INTO sboard (num,id,content) VALUES (test_seq.nextval,'sky','저기는 부산');
+COMMIT;
+
+시퀀스 삭제
+drop sequence test_seq;

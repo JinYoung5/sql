@@ -822,12 +822,17 @@ CREATE TABLE employee(empno number(6),name varchar2(30) NOT NULL, salary number(
 
 -- rename employee to Employee; rename: 변경
 
-1)업무가 CLERK인 사원의 이름,월급,부서명,급여등급을 출력하시오.
+SELECT e.ename ,e.job FROM emp e ,dept d WHERE loc='NEW YORK';
+1)뉴욕에서 일하는 사원중 업무가 CLERK인 사원의 이름,월급,부서명,급여등급을 출력하시오.
+SELECT e.ename,e.sal,d.dname,s.grade FROM emp e,dept d,salgrade s WHERE e.sal BETWEEN s.losal AND s.hisal AND e.job='CLERK' AND d.loc='NEW YORK';
 
-2)근무지(loc)별로 근무하는 사원의 수가 5명 이하일 때, 인원이 같은 도시를 출력하시오.
+SELECT d.loc,COUNT(e.empno) emp_member FROM emp e RIGHT OUTER JOIN dept d ON e.deptno=d.deptno GROUP BY d.loc HAVING COUNT(e.empno)<=5 ORDER BY emp_member;
+2)근무지(loc)별로 근무하는 사원의 수가 5명 이하일 때, 근무인원이 같은 도시와,근무인원을 emp_m으로 출력하시오.
+SELECT d.loc,COUNT(e.empno) emp_m FROM emp e RIGHT OUTER JOIN dept d ON e.deptno=d.deptno GROUP BY d.loc HAVING COUNT(e.empno)<=5 ORDER BY emp_m;
+--질문할것. 도시만 출력하려하면 어떻게 작성?
 
-3)근무지(loc)별로 근무하는 사원의 수를 출력하고, 사원의 수가 제일 많은 도시의 사원들의 이름,월급을 출력하시오.
-
+3)근무지(loc)별로 근무하는 사원의 수를 emp_m으로 출력하고, 사원의 수가 제일 많은 도시의 사원들의 이름,월급을 출력하시오.
+SELECT d.loc,COUNT(e.empno) emp_m e.ename,e.sal FROM emp e, dept d  
 4)직업이 MANAGER인 사원들의 부서번호,부서이름,사원이름,월급,급여등급을 출력하시오.
 
 5)직업이 MANAGER인 사원 중 급여를 가장 적게 받는 사원과 동일한 급여를 받는 사원의 이름,부서명,부서번호를 출력하시오.
@@ -839,3 +844,43 @@ CREATE TABLE employee(empno number(6),name varchar2(30) NOT NULL, salary number(
 8)평균급여보다 많은 급여를 받는 사원중 DALLAS지역에서 근무하는 사원의 이름과 급여를 출력하시오.
 
 9)모든사원의 직업, 부서이름을 출력하시오 (emp,dept)
+
+10)급여등급이 2등급인 사원중 뉴욕에서 근무하는 직원의 이름과 급여,근무지를 출력하시오.
+
+
+create table company(
+    empno number(6), --(6):primary key 제약조건
+    name varchar2(30) not null, --글자 크기가 3byte인거를 감안해서 작성해야됨 30: 3byte 10개 즉 10글자 입력가능
+    salary number(8,2), --8자입력가능, 소수점 2째짜리 까지 입력가능
+    hiredate date default sysdate, --입력을 하지않으면 default 값 sysdate 즉 오늘날짜가 입력됨
+    constraint company_pk primary key (empno)
+);
+
+제약조건 
+(PRIMARY KEY & FOREIGN KEY)
+create table suser(
+    id varchar2(20),
+    name varchar2(30),
+    constraint suser_pk primary key(id)
+);
+
+create table sboard(
+    num number,
+    id varchar2(20) not null,
+    content varchar2(4000) not null,
+    constraint sboard_pk primary key (num),
+    constraint suser_fk foreign key (id) references suser (id) 
+);
+
+INSERT INTO suser (id,name) VALUES ('sky','john');
+INSERT INTO suser (id,name) VALUES ('blue','sunny');
+
+INSERT INTO sboard (num,id,content) VALUES (1,'sky','오늘은 수요일');
+INSERT INTO sboard (num,id,content) VALUES (2,'sky','내일은 목요일');
+INSERT INTO sboard (num,id,content) VALUES (3,'blue','어제는 화요일');
+
+DELETE FROM sboard WHERE num=3; --자식(SBOARD)에있는 데이터를 먼저 지워야 부모(SUSER)에있는 데이터가 지워질 수 있다.
+
+DELETE FROM suser WHERE id='blue';
+
+COMMIT;

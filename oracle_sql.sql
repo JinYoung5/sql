@@ -970,3 +970,57 @@ COMMIT;
 SELECT * FROM student;
 SELECT SUM(score) FROM student;
 
+뷰(View)
+논리적으로 하나 이상의 테이블에 있는 데이터의 부분 집합.
+1)데이터 엑세스를 제한하기 위해
+2)복잡한 질의를 쉽게 작성하기 위해
+3)데이터 독립성을 제공하기 위해
+4)동일한 데이터로부터 다양한 결과를 얻기 위해
+
+View 생성
+CREATE [OR REPLACE] VIEW 뷰이름 AS 쿼리;
+
+create or replace view emp10_view
+as SELECT empno id_number, ename name,
+          sal*12 ann_salary
+   FROM emp
+   WHERE deptno=10;
+
+SELECT * FROM emp10_view;
+
+create or replace view emp_info_view
+as SELECT e.empno, e.ename, d.deptno, d.loc, d.dname
+    FROM emp e, dept d
+    WHERE e.deptno=d.deptno;
+    
+SELECT * FROM emp_info_view;
+
+View를 통한 데이터 변경하기
+일반적으로 View는 조회용으로 많이 사용되지만 아래와 같이 데이터를 변경할 수 있음.
+
+UPDATE emp10_view SET name='SCOTT' WHERE id_number=7839;
+SELECT * FROM emp10_view;
+SELECT * FROm emp; --emp테이블의 KING이 SCOTT으로 변경됨
+
+INSERT INTO emp10_view (id_number,name,ann_salary) VALUES (8000,'JOHN',190000); --가상 열(ann_salary)은 사용할 수 없음
+
+INSERT INTO emp10_view (id_number,name) VALUES (8000,'JOHN');
+SELECT * FROM emp10_view; --10번 부서만 보여지게 제한이 걸려서 삽입한 것이 안 보임.
+SELECT * FROM emp; --emp테이블에 1행이 추가됨
+
+ROLLBACK;
+
+WITH READ ONLY (읽기 전용 뷰를 생성하는 옵션)
+create or replace view emp20_view
+as SELECT empno id_number, ename name, sal*12 ann_salary
+    FROM emp
+    WHERE deptno=20
+with read only;
+
+UPDATE emp20_view SET name='DAVID' WHERE id_number=7902;
+
+SELECT * FROM emp20_view;
+
+View 삭제
+drop view emp10_view;
+

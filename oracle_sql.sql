@@ -821,32 +821,43 @@ default<표현식> : 각각의 열에는 insert 구문에 열의 값이 지정되지 않은 경우에 이�
 CREATE TABLE employee(empno number(6),name varchar2(30) NOT NULL, salary number(8,2), hire_date date default sysdate, constraint employee_pk primary key (empno));
 
 -- rename employee to Employee; rename: 변경
-
-SELECT e.ename ,e.job FROM emp e ,dept d WHERE loc='NEW YORK';
+--6,4,3,2 번 안됨
 1)뉴욕에서 일하는 사원중 업무가 CLERK인 사원의 이름,월급,부서명,급여등급을 출력하시오.
 SELECT e.ename,e.sal,d.dname,s.grade FROM emp e,dept d,salgrade s WHERE e.sal BETWEEN s.losal AND s.hisal AND e.job='CLERK' AND d.loc='NEW YORK';
 
 SELECT d.loc,COUNT(e.empno) emp_member FROM emp e RIGHT OUTER JOIN dept d ON e.deptno=d.deptno GROUP BY d.loc HAVING COUNT(e.empno)<=5 ORDER BY emp_member;
 2)근무지(loc)별로 근무하는 사원의 수가 5명 이하일 때, 근무인원이 같은 도시와,근무인원을 emp_m으로 출력하시오.
 SELECT d.loc,COUNT(e.empno) emp_m FROM emp e RIGHT OUTER JOIN dept d ON e.deptno=d.deptno GROUP BY d.loc HAVING COUNT(e.empno)<=5 ORDER BY emp_m;
---질문할것. 도시만 출력하려하면 어떻게 작성?
+--
 
 3)근무지(loc)별로 근무하는 사원의 수를 emp_m으로 출력하고, 사원의 수가 제일 많은 도시의 사원들의 이름,월급을 출력하시오.
-SELECT d.loc,COUNT(e.empno) emp_m e.ename,e.sal FROM emp e, dept d  
+SELECT d.loc, COUNT(e.empno) emp_m, e.ename,e.sal FROM emp e RIGHT OUTER JOIN dept d ON e.deptno=d.deptno GROUP BY d.loc HAVING MAX(e.empno) ORDER BY emp_m;
+--
+
+SELECT e.ename,e.job,d.dname,d.loc FROM emp e JOIN dept d ON e.deptno=d.deptno WHERE e.job='SALESMAN';
 4)직업이 MANAGER인 사원들의 부서번호,부서이름,사원이름,월급,급여등급을 출력하시오.
+SELECT e.deptno,d.dname,e.ename,e.sal,s.grade FROM emp e INNER JOIN dept d ON e.deptno=d.deptno INNER JOIN salgrade s ON e.job='MANAGER';
+--
 
 5)직업이 MANAGER인 사원 중 급여를 가장 적게 받는 사원과 동일한 급여를 받는 사원의 이름,부서명,부서번호를 출력하시오.
+SELECT e.ename,d.dname,e.deptno FROM emp e, dept d WHERE e.deptno=d.deptno AND e.sal=(SELECT MIN(e.sal) FROM emp e, dept d WHERE e.deptno=d.deptno AND e.job='MANAGER');
 
-6)'BLAKE'와 같은 직업의 사원들의 이름과 월급을 출력하는데, 월급이 2500이상인 사원만 출력하시오.
+SELECT empno,ename,sal,deptno FROM emp WHERE sal IN(SELECT MIN(sal) FROM emp GROUP BY deptno);
+6)'BLAKE'의 직업과 같은 직업인 사원들의 이름과 월급을 출력하는데, 월급이 2500이상인 사원만 출력하시오.
+SELECT ename,sal FROM emp WHERE sal IN(SELECT sal>=2500 FROM emp WHERE job;
+--
 
 7)근무지가 DALLAS 인 사원 모두의 사원번호와 이름을 출력하시오.
+SELECT e.deptno, e.ename FROM emp e, dept d WHERE d.loc IN(SELECT d.loc FROM dept WHERE d.loc='DALLAS');
 
 8)평균급여보다 많은 급여를 받는 사원중 DALLAS지역에서 근무하는 사원의 이름과 급여를 출력하시오.
+SELECT e.ename,e.sal FROM emp e, dept d WHERE sal>(SELECT AVG(sal) FROM emp) AND d.loc='DALLAS';
 
-9)모든사원의 직업, 부서이름을 출력하시오 (emp,dept)
+9)모든사원의 이름,직업, 부서이름,급여등급 출력하시오.( 급여등급을 아래정렬로) (emp,dept)
+SELECT e.ename, e.job, d.dname, s.grade FROM emp e INNER JOIN dept d ON e.deptno=d.deptno INNER JOIN salgrade s ON e.sal BETWEEN s.losal AND s.hisal ORDER BY grade;
 
-10)급여등급이 2등급인 사원중 뉴욕에서 근무하는 직원의 이름과 급여,근무지를 출력하시오.
-
+10)급여등급이 2등급인 사원중 뉴욕에서 근무하는 직원의 이름과 급여,근무지,급여등급 출력하시오.
+SELECT e.ename,e.sal,d.loc,s.grade FROM emp e INNER JOIN dept d ON e.deptno=d.deptno INNER JOIN salgrade s ON e.sal BETWEEN s.losal AND s.hisal AND s.grade='2' AND d.loc='NEW YORK';
 
 create table company(
     empno number(6), --(6):primary key 제약조건
@@ -884,3 +895,78 @@ DELETE FROM sboard WHERE num=3; --자식(SBOARD)에있는 데이터를 먼저 지워야 부모(S
 DELETE FROM suser WHERE id='blue';
 
 COMMIT;
+
+테이블의 관리
+add 연산자 : 테이블에 새로운 컬럼을 추가
+alter table company add (addr varchar2(60));
+
+modify연산자 : 테이블의 컬럼을 수정하거나 not null 컬럼으로 변경할 수 있음
+alter table company modify (salary number(10,2) not null);
+
+drop 연산자 : 컬럼의 삭제
+alter table company drop column name;
+
+컬럼명 변경 -- alter
+alter table company rename column salary to sal;
+
+테이블의 변경 -- rename
+rename company to company2;
+
+테이블의 삭제 -- drop
+drop table company2;
+
+부모 테이블의 컬럼을 삭제하면 자식 테이블의 자식 데이터를 모두 삭제 -- on delete cascade
+on delete cascade 
+
+create table s_member(
+    id varchar2(20) primary key,
+    name varchar2(30)
+);
+
+create table s_member_detail(
+    num number primary key,
+    content varchar2(4000) not null,
+    id varchar2(20) not null references s_member (id) on delete cascade
+);
+
+INSERT INTO s_member (id,name) VALUES ('sky','peter');
+INSERT INTO s_member (id,name) VALUES ('blue','sunny');
+
+INSERT INTO s_member_detail (num,content,id) VALUES (1,'여기는 서울','sky');
+INSERT INTO s_member_detail (num,content,id) VALUES (2,'저기는 부산','blue');
+
+DELETE FROM s_member WHERE id='sky'; --부모(S_MEMBER)가 지워질수 있는 이유 : 테이블 설정할 때 ON DELETE CASCADE를 넣어주었기 때문
+
+COMMIT;
+
+[실습]
+1.student 라는 이름으로 테이블을 생성
+컬럼명         id              name        age         score
+데이터 타입    varchar2(10) varchar2(30)   number(3)   number(3)
+제약조건       primary key   not null      not null   not null
+
+2.데이터를 아래와 같이 입력하시오.
+id          name            age         score
+dragon     홍길동            21          100
+sky        장영실            22          99
+blue       박문수            34          88
+
+3. SELECT 문을 이용해서 전체 행 정보를 출력
+4. student 테이블에서 성적 합계를 구하시오.
+
+create table student(
+    id varchar2(10) primary key,
+    name varchar2(30) not null,
+    age number(3) not null,
+    score number(3) not null
+);
+
+INSERT INTO student (id,name,age,score) VALUES ('dragon','홍길동',21,100);
+INSERT INTO student (id,name,age,score) VALUES ('sky','장영실',22,99);
+INSERT INTO student (id,name,age,score) VALUES ('blue','박문수',34,88);
+
+COMMIT;
+
+SELECT * FROM student;
+SELECT SUM(score) FROM student;
+

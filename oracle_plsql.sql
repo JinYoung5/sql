@@ -67,3 +67,59 @@ begin
     exception when others then
         dbms_output.put_line('errors');
 end;
+
+콜렉션
+varray는 variable array의 약자로 고정 길이(fixed number)를 가진 배열
+
+declare
+    type varray_test is varray(3) of integer;
+    varray1 varray_test; --위에서 선언한 varray_test 타입 변수
+begin
+    varray1 := varray_test(10,20,30);
+    
+    dbms_output.put_line(varray1(1));
+    dbms_output.put_line(varray1(2));
+    dbms_output.put_line(varray1(3));
+end;
+
+중첩 테이블
+중첩 테이블은 varray와 흡사하지만 중첩 테이블은 선언 시에 전체 크기를 명시할 필요가 없다
+
+declare
+    type nested_test is table of varchar2(10);
+    nested1 nested_test; --위에 선언한 nested_test 타입의 변수
+begin
+    nested1 := nested_test('A','B','C','D');
+    
+    dbms_output.put_line(nested1(2));
+end;
+
+연관배열(Associative Array) : index-by table이라고도 하며 키와 값의 쌍으로 구성된 콜렉션, 하나의 키는 하나의 값과 연관되어 있다.
+
+declare
+    type assoc_array is table of number index by pls_integer;
+    --키는 pls_integer형이며, 값은 number형인 요소들로 구성
+    assoc1 assoc_array;
+begin
+    assoc1(3) := 33; --키는 3, 값은 33
+    dbms_output.put_line(assoc1(3));
+end;
+
+레코드
+테이블의 컬럼들이 서로 다른 유형의 데이터 타입으로 구성되듯이 레코드 역시 해당 필드들이 각기 다른 데이터 타입을 가질 수 있음
+
+declare
+    type record1 is record(deptno number,dname varchar2(14),loc varchar2(13));
+    rec1 record1; --위에서 선언한 record1을 받는 변수 선언
+begin
+    rec1.deptno := 50;
+    rec1.dname := 'RECORD';
+    rec1.loc := 'SEOUL';
+    
+    --rec1 레코드값을 dept 테이블에 insert
+    INSERT INTO dept VALUES rec1;
+    COMMIT;
+
+    exception when others then
+        ROLLBACK;
+end;

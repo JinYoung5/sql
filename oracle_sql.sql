@@ -826,13 +826,13 @@ CREATE TABLE employee(empno number(6),name varchar2(30) NOT NULL, salary number(
 SELECT e.ename,e.sal,d.dname,s.grade FROM emp e,dept d,salgrade s WHERE e.sal BETWEEN s.losal AND s.hisal AND e.job='CLERK' AND d.loc='NEW YORK';
 
 SELECT d.loc,COUNT(e.empno) emp_member FROM emp e RIGHT OUTER JOIN dept d ON e.deptno=d.deptno GROUP BY d.loc HAVING COUNT(e.empno)<=5 ORDER BY emp_member;
-2)근무지(loc)별로 근무하는 사원의 수가 5명 이하일 때, 근무인원이 같은 도시와,근무인원을 emp_m으로 출력하시오.
-SELECT d.loc,COUNT(e.empno) emp_m FROM emp e RIGHT OUTER JOIN dept d ON e.deptno=d.deptno GROUP BY d.loc HAVING COUNT(e.empno)<=5 ORDER BY emp_m;
---
+2)근무지(loc)별로 근무하는 사원의 수가 5명 이하일 때, 근무인원이 같은 도시를 출력하고, 근무인원을 emp_m으로 출력하시오.
+SELECT d.loc,COUNT(e.empno) emp_m FROM emp e RIGHT OUTER JOIN dept d ON e.deptno=d.deptno GROUP BY d.loc HAVING COUNT(e.empno)<=5 ORDER BY emp_m ;
+--근무인원이 같은 도시 출력?
 
 3)근무지(loc)별로 근무하는 사원의 수를 emp_m으로 출력하고, 사원의 수가 제일 많은 도시의 사원들의 이름,월급을 출력하시오.
 SELECT d.loc, COUNT(e.empno) emp_m, e.ename,e.sal FROM emp e RIGHT OUTER JOIN dept d ON e.deptno=d.deptno GROUP BY d.loc HAVING MAX(e.empno) ORDER BY emp_m;
---
+--사원의 수가 제일 많은 도시?
 
 SELECT e.ename,e.job,d.dname,d.loc FROM emp e JOIN dept d ON e.deptno=d.deptno WHERE e.job='SALESMAN';
 4)직업이 MANAGER인 사원들의 부서번호,부서이름,사원이름,월급,급여등급을 출력하시오.
@@ -1046,3 +1046,21 @@ COMMIT;
 
 시퀀스 삭제
 drop sequence test_seq;
+
+인덱스(INDEX) : 인덱스는 원하는 정보의 위치를 빠르고,정확하고,지능적으로 알아낼 수 있는 방법 제공.
+                테이블의 컬럼에 대한 제약조건을 설정할 때 Primary key나 Unique 로 설정하면 Oracle은 자동으로 이 컬럼에 대해 Unique Index를 설정함.
+                
+인덱스 만들기
+자동 : 테이블 정의에 PRIMARY KEY 또는 UNIQUE 제약 조건을 정의하면 고유 인덱스가 자동으로 생성
+수정 : 사용자가 열에 고유하지 않은 인덱스를 생성하여 행에 대한 액세스 시간을 줄일수 있다.
+
+
+-유일한 값을 가지는 컬럼에 인덱스 설정 : unique index
+create unique index index_name on table_name (column_name)
+
+CREATE UNIQUE INDEX dname_idx ON dept (dname);
+
+-유일한 값을 가지지 않는 컬럼에 인덱스 설정 : NON UNIQUE INDEX
+create index index_name ON table_name (column_name)
+
+CREATE INDEX emp_ename_idx ON emp (ename);

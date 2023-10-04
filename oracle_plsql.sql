@@ -376,3 +376,106 @@ begin
 end;
 
 SELECT deptno,dname,GET_EMP_COUNT(deptno) 사원수 FROM dept;
+
+3)emp 테이블의 입사일을 입력하면 근무연차를 구하는 함수를 정의하시오.(소수점 자리 절삭, 함수명: get_info_hiredate)
+create or replace function get_info_hiredate(hire_date emp.hiredate%type)
+    return number
+is   
+begin
+    return TRUNC(MONTHS_BETWEEN(SYSDATE,hire_date)/12);
+end;
+
+SELECT ename,GET_INFO_HIREDATE(hiredate)근무연차 FROM emp;
+
+4)emp 테이블을 이용해서 사원번호를 입력하면 해당 사원의 관리자 이름을 구하는 함수를 정의하시오.(함수명get_mgr_name)
+create or replace function get_mgr_name(emp_no emp.empno%type)
+    return varchar2
+is
+    m_name varchar2(10);
+begin
+    SELECT ename
+    INTO m_name
+    FROM emp
+    WHERE empno = (SELECT mgr FROM emp WHERE empno = emp_no);
+    
+    return m_name;
+end;
+
+create or replace function get_mgr_name(emp_no emp.empno%type)
+    return varchar2
+is
+    m_name varchar2(10);
+begin
+    SELECT m.ename
+    INTO m_name
+    FROM emp a, emp m
+    WHERE a.mgr = m.empno AND a.empno = emp_no;
+    
+    return m_name;
+end;
+
+SELECT empno,ename,GET_MGR_NAME(empno) "관리자이름" FROM emp;
+
+5)emp테이블을 이용해서 사원번호를 입력하면 급여등급을 구하는 함수를 정의하시오.(함수명: get_sal_grade)
+create or replace function get_sal_grade(emp_no emp.empno%type)
+    return char
+is
+    sgrade char(1);
+begin
+    SELECT CASE WHEN sal >=4000 THEN 'A'
+                WHEN sal >=3000 THEN 'B'
+                WHEN sal >=2000 THEN 'C'
+                WHEN sal >=1000 THEN 'D'
+                ELSE 'F'
+            END grade --SQL문 안에서는 END CASE 안됨, END 만 가능
+    INTO sgrade
+    FROM emp
+    WHERE empno = emp_no;
+    
+    return sgrade;
+end;
+
+create or replace function get_sal_grade(emp_no emp.empno%type)
+    return number
+is
+    sgrade number;
+begin
+    SELECT s.grade
+    INTO sgrade
+    FROM emp e, salgrade s
+    WHERE e.sal BETWEEN s.losal AND s.hisal
+    AND e.empno = emp_no;
+    return sgrade;
+end;
+
+SELECT ename,sal,GET_SAL_GRADE(empno) 급여등급 FROM emp ORDER BY sal DESC;
+
+6)사원번호를 입력하면 근무지를 구하는 함수(함수명: find_loc)
+create or replace function find_loc(emp_no number)
+    return varchar2
+is
+    dept_loc varchar2(14);
+begin
+    SELECT loc
+    INTO dept_loc
+    FROM dept
+    WHERE deptno = (SELECT deptno FROM emp WHERE empno = emp_no);
+    
+    return dept_loc;
+end;
+
+create or replace function find_loc(emp_no number)
+    return varchar2
+is
+    dept_loc varchar2(14);
+begin
+    SELECT d.loc
+    INTO dept_loc
+    FROM emp e INNER JOIN dept d
+    ON e.deptno = d.deptno
+    WHERE e.empno = emp_no;
+    return dept_loc;
+end;
+
+SELECT FIND_LOC (7698) FROM dual;
+SELECT empno,ename,FIND_LOC(empno) FROM emp;

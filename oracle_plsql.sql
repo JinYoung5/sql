@@ -479,3 +479,93 @@ end;
 
 SELECT FIND_LOC (7698) FROM dual;
 SELECT empno,ename,FIND_LOC(empno) FROM emp;
+
+.프로시저.
+
+create or replace procedure hello_world(p_message in varchar2)
+
+is
+begin
+    dbms_output.put_line(p_message);
+end;
+
+execute hello_world('KOREA');
+exec hello_world('SEOUL');
+
+부서테이블에 부서정보를 입력하는 프로시저를 생성
+create or replace procedure add_department(
+                                        p_deptno in dept.deptno%type,
+                                        p_dname in dept.dname%type,
+                                        p_loc in dept.loc%type)
+is
+begin
+    INSERT INTO dept
+    VALUES (p_deptno, p_dname,p_loc);   
+    COMMIT; --SQL문장이 정상적으로 수행되면 COMMIT
+    
+    exception when others then
+    dbms_output.put_line(p_dname || 'register is failed');
+    ROLLBACK; -- SQL문장이 정상적으로 수행 되지 않으면 ROLLBACK
+    
+end;
+
+exec add_department(60,'IT SERVICE','BUSAN');
+
+사원테이블에 사원정보를 저장
+create or replace procedure register_emp(
+                                        e_no number,
+                                        e_name varchar2,
+                                        e_work varchar2,
+                                        e_mgr number,
+                                        e_sal number,
+                                        e_comm number,
+                                        e_deptno number)
+
+is
+begin
+    INSERT INTO emp (empno,ename,job,mgr,hiredate,sal,comm,deptno)
+    VALUES (e_no,e_name,e_work,e_mgr,SYSDATE,e_sal,e_comm,e_deptno);
+    COMMIT;
+    
+    exception when others then
+    dbms_output.put_line(e_name || ' register is failed');
+    ROLLBACK;
+end;
+
+execute register_emp(9000,'PETER','MANAGER',7902,6000,200,30);
+
+부서번호를 통해서 부서명과 부서의 위치를 구하기 
+create or replace procedure output_department(p_dept_no in dept.deptno%type)
+is
+    d_dname dept.dname%type;
+    d_loc dept.loc%type;
+begin
+    SELECT dname,loc
+    INTO d_dname,d_loc
+    FROM dept
+    WHERE deptno=p_dept_no;
+    
+    dbms_output.put_line(d_dname || ',' || d_loc);
+end;
+
+exec output_department(10);
+
+입사연도를 입력해서 해당 연도에 입사한 사원의 사원번호,이름,급여를 출력
+create or replace procedure info_hiredate(
+                                        p_year in varchar2)
+is
+    --%rowtype으로 데이터 타입이 지정되어 있는 사원테이블(emp)의 하나의 행이 가지고 있는 모든 컬럼의 데이터 타입을 가져옴
+    e_emp emp%rowtype;
+begin
+    SELECT empno,ename,sal
+    INTO e_emp.empno,e_emp.ename,e_emp.sal
+    FROM emp
+    WHERE TO_CHAR(hiredate,'YYYY') = p_year;
+    
+    dbms_output.put_line(e_emp.empno || ' ' || e_emp.ename || ' ' || e_emp.sal);
+end;
+
+하나의 행이 반환되어 에러가 발생하지 않음
+exec info_hiredate('1980');
+여러개의 행이 반환되어 에러 발생
+exec info_hiredate('1981');

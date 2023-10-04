@@ -331,3 +331,48 @@ end;
 
 SELECT EMP_SALARIES(7839) FROM dual; --emp로하면 중복값 모두 나옴, dual 로 해야됨
 SELECT EMP_SALARIES(9000) FROM dual; --없는 사원번호를 입력하면 NULL반환
+
+부서번호를 전달하면 부서명을 구할 수 있는 함수
+create or replace function get_dept_name(dept_no number)
+    return varchar2
+is
+    sDeptName varchar2(30);
+begin
+    SELECT dname
+    INTO sDeptName
+    FROM dept
+    WHERE deptno = dept_no;
+    
+    return sDeptName;
+end;
+
+SELECT GET_DEPT_NAME(50) FROM dual;
+
+[실습]
+1)두 숫자를 제공하면 덧셈을 해서 결과값을 반환하는 함수를 정의하시오.(함수명: add_num)
+create or replace function add_num(num1 integer, num2 integer)
+    return integer
+is
+begin
+    return num1 + num2;
+end;
+
+SELECT ADD_NUM(2,5) FROM dual;
+SELECT ename, ADD_NUM(sal,NVL(comm,0))"실급여" FROM emp;
+
+2)부서번호를 입력하면 해당 부서에서 근무하는 사원 수를 반환하는 함수를 정의하시오(함수명: get_emp_count).
+create or replace function get_emp_count(dept_no emp.deptno%type)
+    return integer  
+is
+   emp_count integer;
+begin
+    
+    SELECT COUNT(empno)
+    INTO emp_count
+    FROM emp
+    WHERE deptno = dept_no;
+    
+    return emp_count;
+end;
+
+SELECT deptno,dname,GET_EMP_COUNT(deptno) 사원수 FROM dept;

@@ -123,3 +123,211 @@ begin
     exception when others then
         ROLLBACK;
 end;
+
+if문
+
+declare
+    grade char(1); 
+begin
+    grade := 'B';
+    if grade = 'A' then
+   dbms_output.put_line('Execllent');
+   elsif grade = 'B' then
+   dbms_output.put_line('Good');
+   elsif grade = 'C' then
+   dbms_output.put_line('Fair');
+   elsif grade = 'D' then
+   dbms_output.put_line('Poor');
+   end if;
+end;
+
+case문
+
+declare
+    grade char(1);
+begin
+    grade := 'B';
+    
+    case grade
+    when 'A' then
+    dbms_output.put_line('Excellent');
+    when 'B' then
+    dbms_output.put_line('Good');
+    when 'C' then
+    dbms_output.put_line('Fair');
+    when 'D' then
+    dbms_output.put_line('Poor');
+    end case;
+end;
+
+loop문
+
+declare
+    test_number integer;
+    result_num integer;
+begin
+    test_number := 1;
+    
+    loop
+        result_num := 2 * test_number;
+        if result_num > 20 then
+            exit; -- 블록 종료
+        else
+            dbms_output.put_line(result_num);
+            end if;
+            
+            test_number := test_number + 1;
+    end loop;
+    --loop 블럭을 빠져나오면 아래 코드를 실행함
+    dbms_output.put_line('프로그램 끝');
+end;
+
+declare
+    test_number integer;
+    result_num integer;
+begin
+    test_number := 1;
+    
+    loop
+        result_num := 2 * test_number;
+        
+        exit when result_num >20;
+        
+        dbms_output.put_line(result_num);
+        test_number := test_number + 1;
+    end loop;
+end;
+
+
+while-loop문
+
+declare
+    test_number integer;
+    result_num integer;
+begin
+    test_number := 1;
+    result_num := 0;
+    
+    while result_num < 20 loop
+        result_num := 2 * test_number;
+        dbms_output.put_line(result_num);
+        test_number := test_number + 1;
+    end loop;   
+end;
+
+for loop문
+
+declare
+    test_number integer;
+    result_num integer;
+begin
+    
+    for test_number in 1..10 loop
+        result_num := 2 * test_number;
+        dbms_output.put_line(result_num);
+    end loop;
+end;
+
+--반대로 출력되게 하려면 in reverse
+declare
+    test_number integer;
+    result_num integer;
+begin
+    
+    for test_number in reverse 1..10 loop
+        result_num := 2 * test_number;
+        dbms_output.put_line(result_num);
+    end loop;
+end;
+
+커서
+SELECT 문장을 실행하면 조건에 따른 결과가 추출된다.
+추출되는 결과는 한 건이 될 수도 있고 여러 건이 될 수도 있으므로 이를 결과 셋(Result Set)혹은 결과 집합이라고 부르기도 한다.
+쿼리에 의해 반환되는 결과는 메모리 상에 위치하게 되는데 PL/SQL에서는 바로 커서(CURSOR)를 사용하여 이 결과집합에 접근할 수 있다.
+즉, 커서를 사용하면 결과집합의 각 개별 데이터에 접근이 가능.
+
+declare
+    cursor emp_csr is
+    SELECT empno
+    FROM emp
+    WHERE deptno=10;
+    
+    emp_no emp.empno%type;
+begin
+    --커서 열기 : 커서로 정의된 커리를 실행하는 역할
+    open emp_csr;
+    
+    loop
+        fetch emp_csr into emp_no; --커서를 이용해서 행에 접근. 컬럼값을 emp_no에 할당(fetch 역할)
+        --%notfound : 커서에서만 사용 가능한 속성
+        --더 이상 패치(할당)할 로우가 없음을 의미
+        exit when emp_csr%notfound;
+        
+        dbms_output.put_line(emp_no);
+    end loop;
+    close emp_csr;
+end;
+
+함수
+
+입력받은 값으로부터 10%의 세율을 얻는 함수
+create or replace function tax(p_value in number)
+    return number
+is begin
+    return p_value * 0.1; 
+end;
+
+SELECT TAX(100) FROM dual;
+SELECT ename,sal,TAX(sal) tax, sal-TAX(sal) "실지급 급여" FROM emp;
+
+급여와 커미션을 합쳐서 세금 계산
+create or replace function tax2(p_sal in emp.sal%type, p_bonus emp.comm%type) --p_bonus 뒤에 in 생략
+    return number
+is
+begin
+    return (p_sal + NVL(p_bonus,0)) * 0.1; 
+end;
+
+SELECT empno,ename,sal,comm,TAX2(sal,comm) AS tax FROM emp;
+
+급여(커미션 포함)에 대한 세율을 다음과 같이 정의함. 급여가 월 $1,000보다 적으면
+세율을 5% 적용하며, $1,000이상 $2,000이하이면 10%, $2,000을 초과하면 20%를 적용
+create or replace function tax3(p_sal emp.sal%type, p_bonus emp.comm%type)
+    return number
+is
+    e_sum number;
+    e_tax number;
+begin
+    e_sum := p_sal + NVL(p_bonus,0);
+    
+    if e_sum < 1000 then
+        e_tax := e_sum * 0.05;
+    elsif e_sum <= 2000 then
+        e_tax := e_sum * 0.1;
+    else
+        e_tax := e_sum * 0.2;
+    end if;
+    
+    return e_tax;
+end;
+
+SELECT empno,ename,sal,comm,TAX3(sal,comm) AS tax FROM emp;
+
+사원번호를 통해서 급여를 알려주는 함수
+create or replace function emp_salaries(emp_no number)
+    return number
+is
+    nSalaries number(9);
+begin
+    nSalaries := 0;
+    SELECT sal
+    -- 결과행이 단일행일 경우 INTO를 이용해서 읽어온 값을 변수에 담을 수 있음.
+    INTO nSalaries
+    FROM emp
+    WHERE empno =emp_no;
+    
+    return nSalaries;
+end;
+
+SELECT EMP_SALARIES(7839) FROM dual; --emp로하면 중복값 모두 나옴, dual 로 해야됨
+SELECT EMP_SALARIES(9000) FROM dual; --없는 사원번호를 입력하면 NULL반환

@@ -273,7 +273,8 @@ end;
 입력받은 값으로부터 10%의 세율을 얻는 함수
 create or replace function tax(p_value in number)
     return number
-is begin
+is 
+begin
     return p_value * 0.1; 
 end;
 
@@ -569,3 +570,120 @@ end;
 exec info_hiredate('1980');
 여러개의 행이 반환되어 에러 발생
 exec info_hiredate('1981');
+
+커서 이용하기
+커서를 이용하여 질의 수행 결과 반환되는 여러 행을 처리
+create or replace procedure info_hiredate(
+                                        p_year in varchar2)
+is
+    e_emp emp%rowtype;
+    --커서의 선언
+    cursor emp_cur is
+    SELECT empno, ename, sal
+    FROM emp
+    WHERE TO_CHAR(hiredate, 'YYYY')  = p_year;
+begin
+    --커서 열기
+    open emp_cur;
+    
+    loop
+    --커서를 이용해서 데이터를 변수에 할당 
+        fetch emp_cur into e_emp.empno, e_emp.ename, e_emp.sal;
+        --더이상 읽을 레코드가 존재하지 않으면 loop를 빠져나감
+        exit when emp_cur%notfound;
+        dbms_output.put_line(e_emp.empno || ' ' || e_emp.ename || ' ' || e_emp.sal);
+    end loop;
+    --커서 닫기
+    close emp_cur;
+end;
+
+exec info_hiredate('1981');
+
+SALES 부서에 속한 사원의 정보 보기
+create or replace procedure emp_info(  
+                                    p_dept dept.dname%type)
+is
+    e_emp_no emp.empno%type;
+    e_emp_name emp.ename%type;
+    
+    cursor emp_cur is
+    SELECT empno, ename
+    FROM emp e JOIN dept d
+    ON e.deptno = d.deptno
+    WHERE dname = UPPER(p_dept);
+begin
+    open emp_cur;
+    
+    loop
+        fetch emp_cur into e_emp_no, e_emp_name;
+        exit when emp_cur%notfound;
+        dbms_output.put_line(e_emp_no || ' ' || e_emp_name);
+    end loop;
+    
+    close emp_cur;
+
+end;
+
+exec emp_info('SALES');
+
+[실습문제]
+1)업무(job)를 입력하여 해당 업무를 수행하는 사원의 사원번호, 이름 , 급여, 업무를 출력하시오.(job_info)
+create or replace procedure job_info(p_job emp.job%type)
+is
+    e_emp emp%rowtype;
+    cursor emp_cur is
+    SELECT empno, ename, sal, job
+    FROM emp
+    WHERE job = p_job;
+begin
+    open emp_cur;
+    loop
+        fetch emp_cur into e_emp.empno, e_emp.ename, e_emp.sal, e_emp.job;
+        exit when emp_cur%notfound;
+        dbms_output.put_line(e_emp.empno || ' ' || e_emp.ename || ' ' || e_emp.sal || ' ' || e_emp.job);
+    end loop;
+    close emp_cur;
+end;
+
+exec job_info('MANAGER');
+
+2)사원번호와 새 업무를 입력하면 emp테이블의 해당 사원의 업무를 갱신할 수 있는 프로시저를 작성하시오.(change_job)
+create or replace procedure change_job(e_no emp.empno%type, e_job emp.job%type)
+is
+
+begin
+    UPDATE emp SET job = e_job WHERE empno = e_no;
+    COMMIT;
+    
+    exception when others then
+        dbms_output.put_line(e_no || ' update is failed');
+    ROLLBACK;
+end;
+
+exec change_job(7369,'DRIVER');
+
+3)부서 이름을 입력받으면 해당 부서의 사원에 대해 급여가 많은 순으로 정보를 제공
+create or replace procedure emp_salary_info(
+                                            p_dept dept.dname%type)
+is
+    cursor emp_cur is
+    SELECT empno, ename, sal
+    FROM emp e JOIN dept d
+    ON e.deptno = d.deptno
+    WHERE d.dname  = UPPER(p_dept)
+    ORDER BY sal DESC;
+    
+    e_emp emp%rowtype;
+begin
+    open emp_cur;
+    loop
+        fetch emp_cur into e_emp.empno, e_emp.ename, e_emp.sal;
+        exit when emp_cur%notfound;
+        dbms_output.put_line(e_emp.empno || ' ' || e_emp.ename || ' ' || e_emp.sal);
+    end loop;
+    --%rowcount : 커서에서 얻은 레코드의 수를 반환
+    dbms_output.put_line(p_dept || '전체 인원수 : ' || emp_cur%rowcount);
+    close emp_cur;
+end;
+
+exec emp_salary_info('SALES');

@@ -5,7 +5,7 @@ SELECT문 : 데이터베이스로부터 저장되어 있는 데이터를 검색하는데 사용
 
 SELECT * FROM emp;  -- " * " 모든 컬럼을 불러오는 키
 
-SELECT empno,ename,job,mgr,hiredate,sal,comm,deptno, FROM emp; --전체 컬럼명 명시
+SELECT empno,ename,job,mgr,hiredate,sal,comm,deptno FROM emp; --전체 컬럼명 명시
 
 일부 컬럼(열)과 연결된 데이터를 읽어옴
 
